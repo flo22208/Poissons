@@ -59,10 +59,10 @@ def update(frame):
     for i in range(Nb_POISSON):
         if contaminer[i] == 1:
             velocities[i] = velocities[leader] + random.uniform(-0.5, 0.5)
-        else:
-            if frame % changement_direction[i] == 0:
-                velocities[i] = np.array([random.uniform(-2.0, 2.0), random.uniform(-2.0, 2.0)])
-                changement_direction[i] = random.randint(5, 20)
+        #else:
+        #   if frame % changement_direction[i] == 0:
+        #       velocities[i] = np.array([random.uniform(-2.0, 2.0), random.uniform(-2.0, 2.0)])
+        #       changement_direction[i] = random.randint(5, 20)
 
        
 
