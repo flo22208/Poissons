@@ -62,11 +62,7 @@ def update(frame):
         #else:
         #   if frame % changement_direction[i] == 0:
         #       velocities[i] = np.array([random.uniform(-2.0, 2.0), random.uniform(-2.0, 2.0)])
-        #       changement_direction[i] = random.randint(5, 20)
-
-       
-
-         
+        #       changement_direction[i] = random.randint(5, 20)     
     
         distances, indices = tree.query(positions[i], k=7)
         Frepulsion = np.zeros(2)
@@ -112,7 +108,7 @@ def update(frame):
 ax.set_xlim(0, SCREEN_WIDTH)
 ax.set_ylim(0, SCREEN_HEIGHT)
 ax.set_aspect('equal')
-ax.set_facecolor("blue")
+ax.set_facecolor("royalblue")
 ax.set_xticklabels([])
 ax.set_yticklabels([])
 ax.set_xticks([])

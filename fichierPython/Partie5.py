@@ -36,11 +36,15 @@ Rrepulsion = 5
 Ralignement = 5
 Rattraction = 10
 
+# Visibilité
+visibilite = np.zeros((Nb_POISSON,Nb_POISSON))
+ANGLE_MAX = np.radians(30)
+
 fig, ax = plt.subplots()
 sc = ax.scatter([], [], s=50)
 
 def update(frame):
-    global positions, velocities
+    global positions, velocities, visibilite
 
     # Propagation de la contamination
     for i in range(Nb_POISSON):
@@ -51,6 +55,17 @@ def update(frame):
         if min_dist < limite_leader:
             contaminer[i] = 1
 
+    # Réseau d'influence
+    for i in range(Nb_POISSON):
+        for j in range(Nb_POISSON):
+            v1 = velocities[i]
+            v2 = positions[j] - positions[i]
+            cosine_angle = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
+            angle = np.arccos(cosine_angle)
+            if abs(angle) <= ANGLE_MAX:
+                visibilite[i][j] = 1    # le poisson i voit le poisson j
+            else:
+                visibilite[i][j] = 0
 
     # KDTree pour interactions locales
     tree = KDTree(positions)
@@ -63,11 +78,7 @@ def update(frame):
         #   if frame % changement_direction[i] == 0:
         #       velocities[i] = np.array([random.uniform(-2.0, 2.0), random.uniform(-2.0, 2.0)])
         #       changement_direction[i] = random.randint(5, 20)
-
-       
-
-         
-    
+             
         distances, indices = tree.query(positions[i], k=7)
         Frepulsion = np.zeros(2)
         Fattraction = np.zeros(2)
@@ -76,10 +87,11 @@ def update(frame):
         for j in range(1, len(distances)):
             if distances[j] < Rrepulsion:
                 Frepulsion -= krepulsion * (positions[indices[j]] - positions[i]) / (distances[j]**2)
-            elif distances[j] < Ralignement:
+            elif distances[j] < Ralignement and visibilite[i][j]:
                 Falignement += (1/N)*velocities[indices[j]]
-            elif distances[j] < Rattraction:
-                Fattraction += kattraction * (positions[indices[j]] - positions[i]) / (distances[j]**2) 
+            elif distances[j] < Rattraction and visibilite[i][j]:
+                Fattraction += kattraction * (positions[indices[j]] - positions[i]) / (distances[j]**2)
+
         # Mise à jour du vecteur vitesse
         velocities[i] += Frepulsion + Fattraction + Falignement
 
@@ -112,7 +124,7 @@ def update(frame):
 ax.set_xlim(0, SCREEN_WIDTH)
 ax.set_ylim(0, SCREEN_HEIGHT)
 ax.set_aspect('equal')
-ax.set_facecolor("blue")
+ax.set_facecolor("royalblue")
 ax.set_xticklabels([])
 ax.set_yticklabels([])
 ax.set_xticks([])

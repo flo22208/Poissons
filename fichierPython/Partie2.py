@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import random
 import numpy as np
-from scipy.spatial import KDTree
 
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 900
@@ -28,14 +27,6 @@ contaminer = [0 for _ in range(Nb_POISSON)]
 contaminer[leader] = 2
 limite_leader = 3
 
-# Paramètres de comportement
-krepulsion = 2
-kattraction = 0.5
-Vnormz = 2  
-Rrepulsion = 5
-Ralignement = 5
-Rattraction = 10
-
 fig, ax = plt.subplots()
 sc = ax.scatter([], [], s=50)
 
@@ -51,40 +42,14 @@ def update(frame):
         if min_dist < limite_leader:
             contaminer[i] = 1
 
-
-    # KDTree pour interactions locales
-    tree = KDTree(positions)
-
     # Déplacement + rebonds
     for i in range(Nb_POISSON):
         if contaminer[i] == 1:
             velocities[i] = velocities[leader] + [random.uniform(-0.5, 0.5),random.uniform(-0.5, 0.5)]
-        #else:
-        #   if frame % changement_direction[i] == 0:
-        #       velocities[i] = np.array([random.uniform(-2.0, 2.0), random.uniform(-2.0, 2.0)])
-        #       changement_direction[i] = random.randint(5, 20)
-
-       
-
-         
-    
-        distances, indices = tree.query(positions[i], k=7)
-        Frepulsion = np.zeros(2)
-        Fattraction = np.zeros(2)
-        Falignement = np.zeros(2)
-        N=7
-        for j in range(1, len(distances)):
-            if distances[j] < Rrepulsion:
-                Frepulsion -= krepulsion * (positions[indices[j]] - positions[i]) / (distances[j]**2)
-            elif distances[j] < Ralignement:
-                Falignement += (1/N)*velocities[indices[j]]
-            elif distances[j] < Rattraction:
-                Fattraction += kattraction * (positions[indices[j]] - positions[i]) / (distances[j]**2) 
-        # Mise à jour du vecteur vitesse
-        velocities[i] += Frepulsion + Fattraction + Falignement
-
-        # Limiter la norme de la vitesse
-        velocities[i] = velocities[i] / np.linalg.norm(velocities[i]) * Vnormz
+        else:
+          if frame % changement_direction[i] == 0:
+              velocities[i] = np.array([random.uniform(-2.0, 2.0), random.uniform(-2.0, 2.0)])
+              changement_direction[i] = random.randint(5, 20)      
 
         new_pos = positions[i] + velocities[i]
         if new_pos[0] <= 5 or new_pos[0] >= GRID_WIDTH - 5:
@@ -112,7 +77,7 @@ def update(frame):
 ax.set_xlim(0, SCREEN_WIDTH)
 ax.set_ylim(0, SCREEN_HEIGHT)
 ax.set_aspect('equal')
-ax.set_facecolor("blue")
+ax.set_facecolor("royalblue")
 ax.set_xticklabels([])
 ax.set_yticklabels([])
 ax.set_xticks([])
