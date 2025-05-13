@@ -53,9 +53,9 @@ def update(frame):
 
         new_pos = positions[i] + velocities[i]
         if new_pos[0] <= 5 or new_pos[0] >= GRID_WIDTH - 5:
-            velocities[i][0] *= -1
+            velocities[i] *= -1
         if new_pos[1] <= 5 or new_pos[1] >= GRID_HEIGHT - 5:
-            velocities[i][1] *= -1
+            velocities[i] *= -1
 
         positions[i] += velocities[i]
 

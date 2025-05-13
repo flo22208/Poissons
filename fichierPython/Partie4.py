@@ -29,11 +29,11 @@ contaminer[leader] = 2
 limite_leader = 3
 
 # Paramètres de comportement
-krepulsion = 2
+krepulsion = 0.5
 kattraction = 0.5
 Vnormz = 2  
 Rrepulsion = 5
-Ralignement = 5
+Ralignement = 8
 Rattraction = 10
 
 fig, ax = plt.subplots()
@@ -84,9 +84,9 @@ def update(frame):
 
         new_pos = positions[i] + velocities[i]
         if new_pos[0] <= 5 or new_pos[0] >= GRID_WIDTH - 5:
-            velocities[i][0] *= -1
+            velocities[i] *= -1
         if new_pos[1] <= 5 or new_pos[1] >= GRID_HEIGHT - 5:
-            velocities[i][1] *= -1
+            velocities[i] *= -1
 
         positions[i] += velocities[i]
 

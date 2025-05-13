@@ -29,12 +29,29 @@ contaminer[leader] = 2
 limite_leader = 3
 
 # Paramètres de comportement
-krepulsion = 2
+krepulsion = 0.5
 kattraction = 0.5
 Vnormz = 2  
 Rrepulsion = 5
-Ralignement = 5
+Ralignement = 8
 Rattraction = 10
+
+# Fonction d'affichage
+def affichage(sc,position, direction, angle):
+    list = []
+    x0 = position[0] 
+    y0 = position[1]
+    dx = direction[0]
+    dy = direction[1]
+    cos_angle = np.cos(angle)
+    sin_angle = np.sin(angle)
+    for i in range(1, 10):
+        for j in range(1, 10):
+            x = x0 + dx * i  * 0.2 + cos_angle * j *0.2
+            y = y0 + dy * i  * 0.2 + sin_angle * j * 0.2
+            list.append([x, y])
+    return list
+
 
 # Visibilité
 visibilite = np.zeros((Nb_POISSON,Nb_POISSON))
@@ -62,8 +79,11 @@ def update(frame):
             v2 = positions[j] - positions[i]
             cosine_angle = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
             angle = np.arccos(cosine_angle)
+            # affichage de la visibilité
+            if i == j:  
+                np.vstack((affichage(sc,positions[i],v1,ANGLE_MAX), vue)) 
             if abs(angle) <= ANGLE_MAX:
-                visibilite[i][j] = 1    # le poisson i voit le poisson j
+                visibilite[i][j] = 1    
             else:
                 visibilite[i][j] = 0
 
@@ -85,12 +105,15 @@ def update(frame):
         Falignement = np.zeros(2)
         N=7
         for j in range(1, len(distances)):
-            if distances[j] < Rrepulsion:
-                Frepulsion -= krepulsion * (positions[indices[j]] - positions[i]) / (distances[j]**2)
-            elif distances[j] < Ralignement and visibilite[i][j]:
-                Falignement += (1/N)*velocities[indices[j]]
-            elif distances[j] < Rattraction and visibilite[i][j]:
-                Fattraction += kattraction * (positions[indices[j]] - positions[i]) / (distances[j]**2)
+            if j == leader:
+                continue
+            else:
+                if distances[j] < Rrepulsion:
+                    Frepulsion -= krepulsion * (positions[indices[j]] - positions[i]) / (distances[j]**2)
+                elif distances[j] < Ralignement and visibilite[i][j]:
+                    Falignement += (1/N)*velocities[indices[j]]
+                elif distances[j] < Rattraction and visibilite[i][j]:
+                    Fattraction += kattraction * (positions[indices[j]] - positions[i]) / (distances[j]**2)
 
         # Mise à jour du vecteur vitesse
         velocities[i] += Frepulsion + Fattraction + Falignement
@@ -100,9 +123,9 @@ def update(frame):
 
         new_pos = positions[i] + velocities[i]
         if new_pos[0] <= 5 or new_pos[0] >= GRID_WIDTH - 5:
-            velocities[i][0] *= -1
+            velocities[i] *= -1
         if new_pos[1] <= 5 or new_pos[1] >= GRID_HEIGHT - 5:
-            velocities[i][1] *= -1
+            velocities[i] *= -1
 
         positions[i] += velocities[i]
 
@@ -116,8 +139,15 @@ def update(frame):
         else:
             colors.append("yellow")
 
-    sc.set_offsets(positions * TILE_SIZE)
+    # Affichage avec visibilité
+    for i in range(len(vue)):
+        colors.append("green")
+    sc.set_offsets(np.vstack((positions, vue)) * TILE_SIZE)
     sc.set_color(colors)
+
+    # Affichage
+    #sc.set_offsets(positions * TILE_SIZE)
+    #sc.set_color(colors)
     return sc,
 
 # Setup graphique
