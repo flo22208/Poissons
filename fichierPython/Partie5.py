@@ -37,7 +37,7 @@ Ralignement = 8
 Rattraction = 10
 
 # Fonction d'affichage
-def affichage(sc,position, direction, angle):
+def affichage(sc,position, direction, angle,vue):
     list = []
     x0 = position[0] 
     y0 = position[1]
@@ -46,11 +46,11 @@ def affichage(sc,position, direction, angle):
     cos_angle = np.cos(angle)
     sin_angle = np.sin(angle)
     for i in range(1, 10):
-        for j in range(1, 10):
-            x = x0 + dx * i  * 0.2 + cos_angle * j *0.2
-            y = y0 + dy * i  * 0.2 + sin_angle * j * 0.2
-            list.append([x, y])
-    return list
+        for j in range(-5, 5):
+            x = x0 + dx * i  * 0.2 + cos_angle * j *0.1
+            y = y0 + dy * i  * 0.2 + sin_angle * j * 0.1
+            vue.append([x, y])
+    return vue
 
 
 # Visibilité
@@ -73,6 +73,7 @@ def update(frame):
             contaminer[i] = 1
 
     # Réseau d'influence
+    vue = []
     for i in range(Nb_POISSON):
         for j in range(Nb_POISSON):
             v1 = velocities[i]
@@ -81,7 +82,7 @@ def update(frame):
             angle = np.arccos(cosine_angle)
             # affichage de la visibilité
             if i == j:  
-                np.vstack((affichage(sc,positions[i],v1,ANGLE_MAX), vue)) 
+                vue = affichage(sc,positions[i],v1,ANGLE_MAX,vue)
             if abs(angle) <= ANGLE_MAX:
                 visibilite[i][j] = 1    
             else:
@@ -142,6 +143,7 @@ def update(frame):
     # Affichage avec visibilité
     for i in range(len(vue)):
         colors.append("green")
+    vue = np.array(vue)
     sc.set_offsets(np.vstack((positions, vue)) * TILE_SIZE)
     sc.set_color(colors)
 
